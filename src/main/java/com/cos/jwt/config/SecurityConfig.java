@@ -1,10 +1,14 @@
 package com.cos.jwt.config;
 
+import com.cos.jwt.config.auth.PrincipalDetailService;
 import com.cos.jwt.config.jwt.JwtAuthenticationFilter;
 import com.cos.jwt.filter.MyFilter3;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,10 +24,21 @@ public class SecurityConfig {
 
     private final CorsFilter corsFilter;
 
+    private final PrincipalDetailService principalDetailService;
+
     // 해당 메소드의 리턴되는 오브젝트를 IoC로 등록해준다.
     @Bean
     public BCryptPasswordEncoder encodPwd() {
         return new BCryptPasswordEncoder();
+    }
+
+    public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+        authenticationManagerBuilder.userDetailsService(principalDetailService).passwordEncoder(encodPwd());
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
