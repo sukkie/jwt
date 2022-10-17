@@ -7,11 +7,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
@@ -26,19 +29,17 @@ public class SecurityConfig {
 
     private final PrincipalDetailService principalDetailService;
 
+    private final AuthenticationConfiguration configuration;
+
     // 해당 메소드의 리턴되는 오브젝트를 IoC로 등록해준다.
     @Bean
     public BCryptPasswordEncoder encodPwd() {
         return new BCryptPasswordEncoder();
     }
 
-    public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-        authenticationManagerBuilder.userDetailsService(principalDetailService).passwordEncoder(encodPwd());
-    }
-
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager() throws Exception {
+        return configuration.getAuthenticationManager();
     }
 
     @Bean
@@ -54,7 +55,7 @@ public class SecurityConfig {
         .addFilter(corsFilter)  // @CorssOrigin은 인증이 없을때만 가능
         .formLogin().disable()  // 로그인창 미사용
         .httpBasic().disable()  // 기본적인 http요청 미사용 (허더의 Authorization에 id,pw 담아서 보내는 방식은 미사용)
-        .addFilter(new JwtAuthenticationFilter())
+        .addFilter(new JwtAuthenticationFilter(authenticationManager()))
 
         .authorizeRequests()
         .antMatchers("/api/v1/user/**")
