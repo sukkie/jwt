@@ -38,4 +38,22 @@ public class RestApiController {
 
         return "회원가입완료";
     }
+
+    // admin, manager, user
+    @GetMapping("/api/v1/user")
+    public String user() {
+        return "<h1>user</h1>";
+    }
+
+    // admin, manager
+    @GetMapping("/api/v1/manager")
+    public String manager() {
+        return "<h1>user</h1>";
+    }
+
+    // admin
+    @GetMapping("/api/v1/admin")
+    public String admin() {
+        return "<h1>user</h1>";
+    }
 }

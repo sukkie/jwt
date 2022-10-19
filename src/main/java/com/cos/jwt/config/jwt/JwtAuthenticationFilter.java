@@ -6,6 +6,7 @@ import com.cos.jwt.config.auth.PrincipalDetails;
 import com.cos.jwt.model.UserModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,13 +24,14 @@ import java.util.Date;
 // /login 요청해서 username과 password를 전송하면 (post)
 // UsernamePasswordAuthenticationFilter가 동작함
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        System.out.println("--------------------");
+        log.info("로그인 처리");
         // 1. id, pw 받아서
         ObjectMapper om = new ObjectMapper();
         try {
@@ -41,7 +43,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
             PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-            System.out.println(principalDetails.getUserModel());
+            log.info(principalDetails.getUserModel().toString());
 
             // authentication객체가 세션에 저장
             // 리턴의 이유는 권한 관리를 security가 대신 해주기 때문에 편하려고 하는것임.

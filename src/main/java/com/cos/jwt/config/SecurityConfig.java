@@ -2,7 +2,9 @@ package com.cos.jwt.config;
 
 import com.cos.jwt.config.auth.PrincipalDetailService;
 import com.cos.jwt.config.jwt.JwtAuthenticationFilter;
+import com.cos.jwt.config.jwt.JwtAuthorizationFilter;
 import com.cos.jwt.filter.MyFilter3;
+import com.cos.jwt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +26,8 @@ import org.springframework.web.filter.CorsFilter;
 @EnableWebSecurity  // 스프링 시큐리티 필터(현재 클래스가 필터임)가 스프링 필터체인에 등록이 됩니다.
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final UserRepository userRepository;
 
     private final CorsFilter corsFilter;
 
@@ -56,6 +60,7 @@ public class SecurityConfig {
         .formLogin().disable()  // 로그인창 미사용
         .httpBasic().disable()  // 기본적인 http요청 미사용 (허더의 Authorization에 id,pw 담아서 보내는 방식은 미사용)
         .addFilter(new JwtAuthenticationFilter(authenticationManager()))
+        .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository))
 
         .authorizeRequests()
         .antMatchers("/api/v1/user/**")

@@ -23,7 +23,13 @@ public class PrincipalDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         userModel.getRoleList().forEach(r -> {
-            authorities.add(() -> r);
+            authorities.add(new GrantedAuthority() {
+                @Override
+                public String getAuthority() {
+                    return r;
+                }
+            });
+//            authorities.add(() -> r);
         });
         return authorities;
     }
